@@ -1,0 +1,263 @@
+<html>
+
+<head>
+<body style="background-color:powderblue;">
+    </body>
+    </head>
+
+<style>
+    
+    .container
+{
+    
+border-radius:20px ;
+    outline: none;
+    text-align: #3a4655;
+    margin-top:23px
+   
+}
+
+table{
+    
+    margin: auto;
+    background-attachment: fixed;
+    background-color: #3a4655;
+    border-radius: 15px;
+}
+
+#userinput
+{
+    border: none;
+    outline: none;
+    text-align: right;
+    color: white;
+    background-color: #3a4655;
+    vertical-align: text-bottom;
+    font-size:34px;
+    height: 200px;
+    width: 410px;
+
+}
+
+
+
+
+.button{
+    outline: none;
+
+    color: white;
+   font-size: 20px;
+    background: #3a4655;
+    width: 102px;
+    height: 90px;
+   
+}
+    
+
+
+
+
+   
+</style>
+    
+    <!-- <button id="calculate">Calculate</button> -->
+    <div class="container" >
+    <div id="result"></div>
+
+
+    <body>
+        <table class="calculator" border = "1">
+            <tr>
+                <td colspan="4" class="display" id = "display"><textarea type="text" id="userInput" ></textarea> </td>
+            </tr>
+            <!-- <tr>
+                <td colspan="3" class="display-result" id = "display-result"> </td>
+                </tr> -->
+    
+                <tr>
+                    <td>
+                         <input class="button"type="button"value="C"onclick="clearScreen()" style="color:#c75d54;">
+                    </td>
+                    <td>
+                        <input class="button" type="button" value="+/-" onclick="negate()" style="color:#576170;"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="%"onclick="display('%')" style ="color:#576170;"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="/"onclick="display('/')" style="color:#576170;"/>
+                    </td>
+        
+                </tr>
+                <tr>
+                    <td>
+                        <input class="button" type="button"value="7"onclick="display('7')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="8"onclick="display('8')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="9"onclick="display('9')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="*"onclick="display('*')" style="color:#576170;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="button" type="button"value="4"onclick="display('4')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="5"onclick="display('5')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="6"onclick="display('6')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="-"onclick="display('-')" style="color:#576170;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input class="button" type="button"value="1"onclick="display('1')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="2"onclick="display('2')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="3"onclick="display('3')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="+"onclick="display('+')" style="color:#576170;"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                       
+                        <input class="button" type="button"value="0"onclick="display('0')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="."onclick="display('.')"/>
+                    </td>
+                    <td>
+                        <input class="button" type="button"value="<"onclick="delCharacter()"/>
+                    </td>
+                    <td>
+                        <input class="button" id="calculate" type="button"value="=" style="color:#576170;"/>
+                    </td>
+                </tr>
+    
+        </table>
+    </div>
+
+<script>
+
+    function tokenize(s) {
+        // --- Parse a calculation string into an array of numbers and operators
+        const r = [];
+        let token = '';
+        for (const character of s) {
+            if ('^*/+-%'.indexOf(character) > -1) {
+                if (token === '' && character === '-') {
+                    token = '-';
+                } else {
+                    r.push(parseFloat(token), character);
+                    token = '';
+                }
+            } else {
+                token += character;
+            }
+        }
+        if (token !== '') {
+            r.push(parseFloat(token));
+        }
+        return r;
+    }
+
+    function calculate(tokens) {
+        // --- Perform a calculation expressed as an array of operators and numbers
+        const operatorPrecedence = [{ '^': (a, b) => Math.pow(a, b) },
+        { '*': (a, b) => a * b, '/': (a, b) => a / b },
+        { '+': (a, b) => a + b, '-': (a, b) => a - b },
+        { '%': (a, b) => a % b }];
+
+        let operator;
+        for (const operators of operatorPrecedence) {
+            const newTokens = [];
+            for (const token of tokens) {
+                if (token in operators) {
+                    operator = operators[token];
+                } else if (operator) {
+                    newTokens[newTokens.length - 1] =
+                        operator(newTokens[newTokens.length - 1], token);
+                    operator = null;
+                } else {
+                    newTokens.push(token);
+                }
+            }
+            tokens = newTokens;
+        }
+        if (tokens.length > 1) {
+            console.log('Error: unable to resolve calculation');
+            return tokens;
+        } else {
+            return tokens[0];
+        }
+    }
+    const calculateButton = document.getElementById('calculate');
+    const userInput = document.getElementById('userInput');
+    const result = document.getElementById('result');
+    calculateButton.addEventListener('click', function () {
+        userInput.value = "" + calculate(tokenize(userInput.value));
+    });
+
+
+    function negate(){
+        x = userInput.value
+        x = x.split("\n")[1];
+        if (x == null){
+            x = userInput.value.split("\n")[0];
+        }
+        userInput.value = -x;
+
+
+    }
+
+    function display(n){
+        
+        // userInput.value += x;
+        // userInput.value += "\n" + calculate(tokenize(userInput.value.split("\n")[0]));
+
+        x = userInput.value;
+        firstLine = x.split("\n")[0] + n;
+        secondLine = calculate(tokenize(firstLine));
+        userInput.value = firstLine + "\n" + secondLine;
+    }
+
+    function clearScreen(){
+        userInput.value = "";
+    }
+
+    function delCharacter(){
+        x = userInput.value;
+
+        firstLine = x.split("\n")[0];
+        secondLine = x.split("\n")[1];
+
+        if (firstLine.length == 1){
+            userInput.value = "";
+        }
+        else{
+            userInput.value = firstLine.substring(0, firstLine.length - 1) + "\n" + secondLine;
+        }
+        display("");
+    }
+
+    userInput.onkeydown = function(e){
+        display("");
+    }
+
+</script>
+</body>
+
+</html>
